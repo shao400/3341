@@ -38,6 +38,8 @@ class ScannerX {
 			br.close();
 			
 			generateCores();
+			//If first token is const, set it to error
+			//if(coreTokens.get(0).equals(Core.values()[CONST_ID]))coreTokens.set(0, Core.values()[34]);
 	       currentPos = 0;
 	}
 	
@@ -49,6 +51,12 @@ class ScannerX {
 			return tokens.size();
 		}
 	
+	public void printTokens() {
+		for(int i =0;i<tokens.size();i++) {
+			System.out.println(tokens.get(i));
+		}
+	}
+	
 	
 	// generateToken should generate a ArrList of Tokens
 		private static void generateTokens(Scanner in) throws IOException {
@@ -59,16 +67,70 @@ class ScannerX {
 	            while (pos < line.length()) {
 	                String token = nextWordOrSeparator(line, pos);
 	                pos += token.length();
-	                if (!SEPARATORS.contains(token.subSequence(0, 1))) {
-	                	if(containsSymbol(token)) {
-	                		tokenOperation(token);
+	                //System.out.println(token);
+	                if(token.length()==0) {
+						System.out.println("Exit, Empty Token!");
+						System.exit(0);
+					}
+	                //First Check not seperators
+	                if(!SEPARATORS.contains(token.subSequence(0, 1))) {
+	                //Start with symbols, might contain multiple symbols
+	                if (SYMBOLS.contains(token.subSequence(0, 1))) {
+	                	
+	                	if(allSymbol(token)) {
+	                		
+	                		int pos2 = 0;
+	                		while(pos2<token.length()) {
+	                			String token2 = tokenOperation(token, pos2);
+	                			tokens.add(token2);
+	                			pos2+=token2.length();
+	                		}
+	                		
 	                	}
-	                	else{tokens.add(token);}
+	                	
+	                }else {//Others
+	                	tokens.add(token);
 	                }
+	            }
+	                
 	            }
 	        }
 	        tokens.add("EOF");
 	        
+		}
+		
+		/* Token a String containing all symbol operations to legal tokens and insert to tokens * 
+		 * in order, *
+		 * Requirement: the String contains only symbols */
+		private static String tokenOperation(String op, int pos) {
+			for(int k=0;k<op.length();k++) {
+				if(!SYMBOLS.contains(op.subSequence(k, k+1)) ||op.length()<=0) {
+					System.out.println("Exit, since op str does not meet func pre");
+					System.exit(0);
+				}
+			}
+			
+			StringBuilder next = new StringBuilder("");
+			
+			int i = pos;
+			if(i<op.length()) {
+	       
+	            if(i<op.length()-1) { //Has opportunity that two char symbols be the next token
+	            	next.append(op.charAt(i));
+	                i++;               
+	                next.append(op.charAt(i));
+	            	if(!Token_ID.contains(next.toString())) {//Delete last char
+	            		next.deleteCharAt(next.length()-1);
+	            	}else {////Being Greedy
+	            		i++;
+	            	}
+	            }else if(i==op.length()-1) { //Left a single char symbol
+	            	next.append(op.charAt(i));
+	                //i++;
+	            }     
+	        //tokens.add(next.toString());
+			}
+			return next.toString();
 		}
 		
 		
@@ -121,45 +183,18 @@ class ScannerX {
 		}	
 	
 
-	/*Judge whether a token string contains symbols*/
-	private static boolean containsSymbol(String op) {
+	/*Judge whether a token string is all symbols*/
+	private static boolean allSymbol(String op) {
+		boolean re = true;
 		for(int i=0; i<op.length();i++) {
 			if (!SYMBOLS.contains(op.subSequence(i, i+1))) {
-				return true;
+				re =  false;
 			}
 		}
-		return false;     
+		return re;     
 	}
 	
-	/* Token a String containing symbol operations to legal tokens and insert to tokens * 
-	 * in order, *
-	 * Requirement: the String contains no whitespace */
-	private static void tokenOperation(String op) {
-		int i = 0;
-		while(i<op.length()) {
-        StringBuilder next = new StringBuilder("");
-        if (SYMBOLS.contains(String.valueOf(op.charAt(i)))) { //It's a symbol
-            if(i<op.length()-1) { //Has opportunity that two char symbols be the next token
-            	next.append(op.charAt(i));
-                i++;
-            	if(SYMBOLS.contains(String.valueOf(op.charAt(i)))) { //Being Greedy
-            		next.append(op.charAt(i));
-	                i++;
-            	}
-            }else {
-            	next.append(op.charAt(i));
-                i++;
-            }
-        } else {											  //It's not a symbol
-            while (i < op.length()
-                    && !SYMBOLS.contains(String.valueOf(op.charAt(i)))) {
-                next.append(op.charAt(i));
-                i++;
-            }
-        }
-        tokens.add(next.toString());
-		}
-	}
+
 	
 	
 
@@ -199,6 +234,8 @@ class ScannerX {
                 next.append(s.charAt(i));
                 i++;
             }
+            //System.out.println(next.toString());
+            return next.toString();
         } else if(SYMBOLS.contains(String.valueOf(s.charAt(i)))) { //Is Op
             while (i < s.length()
                     && !SEPARATORS.contains(String.valueOf(s.charAt(i)))
@@ -206,6 +243,8 @@ class ScannerX {
                 next.append(s.charAt(i));
                 i++;
             }
+            //System.out.println(next.toString());
+            return next.toString();
         } else { //Is const or id or others
         	 while (i < s.length()
                      && !SEPARATORS.contains(String.valueOf(s.charAt(i)))
@@ -213,8 +252,9 @@ class ScannerX {
                  next.append(s.charAt(i));
                  i++;
              }
+        	 //System.out.println(next.toString());
+        	 return next.toString();
         }
-        return next.toString();
 
     }
 	

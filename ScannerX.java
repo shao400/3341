@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -143,7 +144,18 @@ class ScannerX {
 	        	int pos = Token_ID.indexOf(tokens.get(k));
 	        	if(isConst(tokens.get(k))) {//Is Const
 	        		coreTokens.add(Core.values()[CONST_ID]);
-	        		constMap.put(k,Integer.valueOf(tokens.get(k)));
+	        		BigInteger maxInt = BigInteger.valueOf(Integer.MAX_VALUE);
+	        		BigInteger value = new BigInteger(tokens.get(k));
+
+	        		if (value.compareTo(maxInt) < 0)
+	        		{
+	        			//Smaller than MAX.INT
+	        			constMap.put(k,Integer.valueOf(tokens.get(k)));
+	        		}else {
+	        			constMap.put(k,Integer.MAX_VALUE);
+	        			System.out.println("Error: Const Out of Int Bound");
+	        		}
+	        		
 	        	}else if (isIdent(tokens.get(k))) {//Is Ident
 	        		coreTokens.add(Core.values()[IDENT_ID]);
 	        		idMap.put(k,tokens.get(k));

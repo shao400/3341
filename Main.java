@@ -14,8 +14,8 @@ class Main {
 		
 		ScannerX S = new ScannerX(args[0]);
 		
-		System.out.println(S.coreSize());
-		System.out.println(S.tokenSize());
+		//System.out.println(S.coreSize());
+		//System.out.println(S.tokenSize());
 		// Print the token stream
 		while (S.currentToken() != Core.EOF && S.currentToken() != Core.ERROR) {
 			// Pring the current token, with any extra data needed

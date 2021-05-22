@@ -12,14 +12,13 @@ import java.io.BufferedReader;
 class ScannerX {
 	
 	private static final String SYMBOLS = ";(),=!<+-*"; //Set of symbols
-	private static final String CONSTS = "1234567890"; //Set of symbols
 	private static final String SEPARATORS = " \t\n\r"; //Set of separators
 	private static final int CONST_ID = 31;
 	private static final int IDENT_ID = 32;
 	private static final ArrayList<String> Token_ID = new ArrayList<String>(Arrays.asList("program", 
 			"begin","end", "new", "define", "extends", "class", "endclass", "int", "endfunc",
             "if", "then", "else", "while", "endwhile", "endif", ";", "(", ")", ",", "=", "!",
-            "||", "==","<", "<=", "+", "-", "*", "input", "output", "const", "id", "EOF"));
+            "||", "==","<", "<=", "+", "-", "*", "input", "output", "const", "id", "EOF", "ERROR"));
 	
 	/*Tokens Arr List which we store all  the tokens*/
 	private static ArrayList<String> tokens = new ArrayList<String>();
@@ -39,7 +38,6 @@ class ScannerX {
 			br.close();
 			
 			generateCores();
-	
 	       currentPos = 0;
 	}
 	
@@ -73,32 +71,51 @@ class ScannerX {
 	        
 		}
 		
+		
+		
 		/*generateCores should create core Arr list*/
 		private static void generateCores() {
 			  /*Core Tokens*/
 	        int k = 0;
 	        while(k<tokens.size()) {
 	        	int pos = Token_ID.indexOf(tokens.get(k));
-	        	if(CONSTS.contains(tokens.get(k).subSequence(0, 1))) {//Is Const
+	        	if(isConst(tokens.get(k))) {//Is Const
 	        		coreTokens.add(Core.values()[CONST_ID]);
 	        		constMap.put(k,Integer.valueOf(tokens.get(k)));
 	        	}else if (isIdent(tokens.get(k))) {//Is Ident
 	        		coreTokens.add(Core.values()[IDENT_ID]);
 	        		idMap.put(k,tokens.get(k));
-	        	}else {
+	        	}else if(pos<Core.values().length && pos>=0){
 	        	coreTokens.add(Core.values()[pos]);
+	        	}else {
+	        		//ERROR
+	        		coreTokens.add(Core.values()[34]);
 	        	}
 	        	k++;
 	        }
 		}
 		
-		/*Judge whether a token string contains symbols*/
+		
+		/*Judge whether a token string is digit*/
+		private static boolean isConst(String token) {
+			boolean result = true;
+			
+				for(int i =0;i<token.length();i++) {
+			if(!Character.isDigit(token.charAt(i)))result = false;
+				}
+			
+			return result;
+		}	
+		
+		/*Judge whether a token string is ident*/
 		private static boolean isIdent(String token) {
-			boolean result = false;
+			boolean result = true;
 			if(Token_ID.contains(token)) {
 				result = false;
-			}else if(Character.isLetter(token.charAt(0))) {
-			result = true;
+			}else {
+				for(int i =0;i<token.length();i++) {
+			if(!Character.isLetterOrDigit(token.charAt(i)))result = false;
+				}
 			}
 			return result;
 		}	
@@ -176,18 +193,26 @@ class ScannerX {
 
         int i = position;
         StringBuilder next = new StringBuilder("");
-        if (SEPARATORS.contains(String.valueOf(s.charAt(i)))) {
+        if (SEPARATORS.contains(String.valueOf(s.charAt(i)))) {//Is Seperator
             while (i < s.length()
                     && SEPARATORS.contains(String.valueOf(s.charAt(i)))) {
                 next.append(s.charAt(i));
                 i++;
             }
-        } else {
+        } else if(SYMBOLS.contains(String.valueOf(s.charAt(i)))) { //Is Op
             while (i < s.length()
-                    && !SEPARATORS.contains(String.valueOf(s.charAt(i)))) {
+                    && !SEPARATORS.contains(String.valueOf(s.charAt(i)))
+                    && SYMBOLS.contains(String.valueOf(s.charAt(i)))) {
                 next.append(s.charAt(i));
                 i++;
             }
+        } else { //Is const or id or others
+        	 while (i < s.length()
+                     && !SEPARATORS.contains(String.valueOf(s.charAt(i)))
+                     && !SYMBOLS.contains(String.valueOf(s.charAt(i)))) {
+                 next.append(s.charAt(i));
+                 i++;
+             }
         }
         return next.toString();
 

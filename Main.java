@@ -5,14 +5,8 @@ import java.io.InputStreamReader;
 class Main {
 	public static void main(String[] args) throws IOException {
 		// Initialize the scanner with the input file
-		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		System.out.print("Enter your file: ");
-		 
-		String input = reader.readLine();
-		System.out.println("Your file is: " + input);
 		
-		ScannerX S = new ScannerX(input);
-		//Scanner S = new Scanner(args[0]);
+		ScannerX S = new ScannerX(args[0]);
 		//System.out.println(S.coreSize());
 		//System.out.println(S.tokenSize());
 		// Print the token stream
